@@ -6,14 +6,7 @@ namespace DistributedSessions.Controllers
 {
     public class CartController : Controller
     {
-        private readonly IDistributedCache _cache;
-
-        public CartController(IDistributedCache cache)
-        {
-            _cache = cache;
-        }
-
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             // Get the value of the session
             var data = GetBooksFromSession();
@@ -22,9 +15,9 @@ namespace DistributedSessions.Controllers
             return View(data);
         }
 
-        public async Task<IActionResult> AddToCart(int id)
+        public IActionResult AddToCart(int id)
         {
-            var data = await GetBooksFromRedisCache();
+            var data = GetBooksFromSession();
 
             var book = Data.Books.Where(b => b.Id == id).FirstOrDefault();
 
@@ -35,10 +28,7 @@ namespace DistributedSessions.Controllers
                 var json = JsonSerializer.Serialize(data);
 
                 //Local in-memory session
-                // HttpContext.Session.SetString("user-session-id", json);
-
-                //Redis cache
-                await _cache.SetStringAsync("user-session-id", json);
+                HttpContext.Session.SetString("user-session-id", json);
 
                 TempData["Success"] = "The book is added successfully";
 
@@ -46,18 +36,6 @@ namespace DistributedSessions.Controllers
             }
 
             return NotFound();
-        }
-
-        private async Task<List<Book>> GetBooksFromRedisCache()
-        {
-            var cacheValue = await _cache.GetStringAsync("user-session-id");
-
-            if (cacheValue is not null)
-            {
-                return JsonSerializer.Deserialize<List<Book>>(cacheValue);
-            }
-
-            return (Enumerable.Empty<Book>()).ToList();
         }
 
         private List<Book> GetBooksFromSession()
