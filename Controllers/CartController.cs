@@ -1,23 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
 namespace DistributedSessions.Controllers
 {
     public class CartController : Controller
     {
-        public IActionResult Index()
+        private readonly IDistributedCache _cache;
+
+        public CartController(IDistributedCache cache)
+        {
+            _cache = cache;
+        }
+
+        public async Task<IActionResult> Index()
         {
             // Get the value of the session
-            var data = GetBooksFromSession();
+            var data = await GetBooksFromSession();
 
             //Pass the list to the view to render
             return View(data);
         }
 
-        public IActionResult AddToCart(int id)
+        public async Task<IActionResult> AddToCart(int id)
         {
-            var data = GetBooksFromSession();
+            var data = await GetBooksFromSession();
 
             var book = Data.Books.Where(b => b.Id == id).FirstOrDefault();
 
@@ -25,8 +32,12 @@ namespace DistributedSessions.Controllers
             {
                 data.Add(book);
 
+                var json = JsonSerializer.Serialize(data);
+
                 //Local in-memory session
-                HttpContext.Session.SetString("user-session-id", JsonSerializer.Serialize(data));
+                // HttpContext.Session.SetString("user-session-id", json);
+
+                await _cache.SetStringAsync("user-session-id", json);
 
                 TempData["Success"] = "The book is added successfully";
 
@@ -36,13 +47,15 @@ namespace DistributedSessions.Controllers
             return NotFound();
         }
 
-        private List<Book> GetBooksFromSession()
+        private async Task<List<Book>> GetBooksFromSession()
         {
-            var sessionString = HttpContext.Session.GetString("user-session-id");
+            //var sessionString = HttpContext.Session.GetString("user-session-id");
 
-            if (sessionString is not null)
+            var cacheValue = await _cache.GetStringAsync("user-session-id");
+
+            if (cacheValue is not null)
             {
-                return JsonSerializer.Deserialize<List<Book>>(sessionString);
+                return JsonSerializer.Deserialize<List<Book>>(cacheValue);
             }
 
             return (Enumerable.Empty<Book>()).ToList();

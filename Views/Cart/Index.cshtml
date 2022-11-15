@@ -7,11 +7,18 @@
     {
         <div class="alert alert-success col-12 mt-4"><strong> @TempData["Success"]?.ToString()</strong></div>
     }
+    <div class="row">
+        <div class="col-10 text-center">
+            <h1>Cart from session</h1>
+            <p>Here's your cart (retrieved from session)</p>
+        </div>
+        <div class="col-2 pt-3">
+            <a class="btn btn-outline-success btn-lg" asp-controller="Home" asp-action="Index">Home</a>
+        </div>
+    </div>
+</div>
 
-    <h1>Cart from session</h1>
-
-    <p>Here's your cart (retrieved from session)</p>
-
+<div class="text-center">
     <table class="table table-hover">
         <thead>
             <tr class="table-secondary">

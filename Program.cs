@@ -1,5 +1,3 @@
-using StackExchange.Redis;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,7 +5,10 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSession();
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnStr");
+});
 
 var app = builder.Build();
 
