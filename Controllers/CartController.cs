@@ -28,7 +28,7 @@ namespace DistributedSessions.Controllers
                 var json = JsonSerializer.Serialize(data);
 
                 //Local in-memory session
-                HttpContext.Session.SetString("user-session-id", json);
+                HttpContext.Session.SetString("cart", json);
 
                 TempData["Success"] = "The book is added successfully";
 
@@ -40,7 +40,7 @@ namespace DistributedSessions.Controllers
 
         private List<Book> GetBooksFromSession()
         {
-            var sessionString = HttpContext.Session.GetString("user-session-id");
+            var sessionString = HttpContext.Session.GetString("cart");
 
             if (sessionString is not null)
             {
