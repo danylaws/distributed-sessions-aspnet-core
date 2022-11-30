@@ -6,20 +6,20 @@ namespace DistributedSessions.Controllers
 {
     public class CartController : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             // Get the value of the session
-            var data = GetBooksFromSession();
+            var data = await GetBooksFromSession();
 
             //Pass the list to the view to render
             return View(data);
         }
 
-        public IActionResult AddToCart(int id)
+        public async Task<IActionResult> AddToCart(int id)
         {
-            var data = GetBooksFromSession();
+            var data = await GetBooksFromSession();
 
-            var book = Data.Books.Where(b => b.Id == id).FirstOrDefault();
+            var book = Data.Books.FirstOrDefault(b => b.Id == id);
 
             if (book is not null)
             {
@@ -38,8 +38,10 @@ namespace DistributedSessions.Controllers
             return NotFound();
         }
 
-        private List<Book> GetBooksFromSession()
+        private async Task<List<Book>> GetBooksFromSession()
         {
+            await HttpContext.Session.LoadAsync();
+
             var sessionString = HttpContext.Session.GetString("cart");
 
             if (sessionString is not null)
