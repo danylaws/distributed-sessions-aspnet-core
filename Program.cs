@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddStackExchangeRedisCache(options =>
-    options.Configuration = builder.Configuration.GetConnectionString("RedisSessionConnStr"));
+    options.Configuration = builder.Configuration.GetConnectionString("RedisSession"));
 
 builder.Services.AddSession();
 
