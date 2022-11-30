@@ -5,11 +5,6 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSession();
 
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("RedisConnStr");
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
